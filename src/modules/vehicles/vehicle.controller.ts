@@ -20,6 +20,25 @@ const addVehicle = async (req: Request, res: Response) => {
     }
 }
 
+const getVehicles = async (req: Request, res: Response) => {
+    try {
+        const result = await vehicleServices.getVehicles()
+
+        res.status(200).json({
+            success: true,
+            message: 'Fetched all vehicles!',
+            data: result.rows
+        })
+
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 export const vehicleControllers = {
     addVehicle,
+    getVehicles
 }
