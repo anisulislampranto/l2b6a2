@@ -8,7 +8,7 @@ const auth = (...roles: string[]) => {
             const token = req.headers.authorization;
 
             if (!token) {
-                return res.status(5000).json({ message: 'Please login to perform this action!' })
+                return res.status(500).json({ message: 'Please login to perform this action!' })
             }
 
             const decoded = jwt.verify(token, config.jwt_secret as string) as JwtPayload;
