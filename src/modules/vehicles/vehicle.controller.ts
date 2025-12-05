@@ -58,8 +58,29 @@ const getVehicle = async (req: Request, res: Response) => {
     }
 }
 
+const updateVehicle = async (req: Request, res: Response) => {
+    const {vehicleId} = req.params;
+
+    try {
+        const result = await vehicleServices.updateVehicle(vehicleId, req.body)
+
+        res.status(200).json({
+            success: true,
+            message: 'Updated vehicle!',
+            data: result.rows[0],
+        })
+
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 export const vehicleControllers = {
     addVehicle,
     getVehicles,
-    getVehicle
+    getVehicle,
+    updateVehicle
 }
