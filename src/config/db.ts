@@ -13,7 +13,7 @@ const initDB = async () => {
             email VARCHAR(150) UNIQUE NOT NULL CHECK (email = LOWER(email)),
             password VARCHAR(255) NOT NULL CHECK (char_length(password) >= 6),
             role VARCHAR(50) NOT NULL,
-            phone VARCHAR(15),
+            phone VARCHAR(15) NOT NULL,
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT NOW()
         )
@@ -27,6 +27,20 @@ const initDB = async () => {
             registration_number VARCHAR(150) UNIQUE NOT NULL,
             daily_rent_price NUMERIC NOT NULL CHECK (daily_rent_price > 0),
             availability_status VARCHAR(20) NOT NULL CHECK (availability_status IN ('available', 'booked'))
+        )
+    `)
+
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS bookings (
+            id SERIAL PRIMARY KEY,
+            customer_id INT REFERENCES users(id) ON DELETE CASCADE,
+            vehicle_id INT REFERENCES vehicles(id) ON DELETE CASCADE,
+            rent_start_date DATE NOT NULL,
+            rent_end_date DATE NOT NULL,
+            CHECK (rent_end_date > rent_start_date),
+            total_price NUMERIC NOT NULL CHECK (total_price > 0),
+            status VARCHAR(20) NOT NULL CHECK (status IN ('active', 'cancelled', 'returned'))
         )
     `)
 
