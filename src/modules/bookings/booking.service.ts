@@ -35,7 +35,39 @@ const getBookings = async(user: JwtPayload) => {
     return bookings;
 }
 
+const cancelBooking = async(bookingId: string | undefined, user: JwtPayload) => {
+    const booking = await pool.query(`SELECT * FROM bookings WHERE id=$1`, [bookingId])
+    const bookingData = booking.rows[0]
+
+    if (!bookingData) {
+        throw Error('Booking not found')
+    }
+
+    if (user.role === 'admin') {
+        const updatedBooking = await pool.query( `UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,  ["returned", bookingId]);
+        await pool.query( `UPDATE vehicles SET availability_status=$1 WHERE id=$1`, ["available", bookingData.vehicle_id]);
+
+        return updatedBooking;
+    } else if(user.role === 'customer') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const startDate = new Date(bookingData.rent_start_date);
+        startDate.setHours(0, 0, 0, 0);
+
+        if (startDate > today) {
+            const updatedBooking = await pool.query(`UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`, ["cancelled", bookingId]);
+            await pool.query(`UPDATE vehicles SET availability_status=$1 WHERE id=$2`, ["available", bookingData.vehicle_id]);
+            return updatedBooking;
+        }
+
+    }
+
+    
+}
+
 export const bookingServices = {
     createBooking,
-    getBookings
+    getBookings,
+    cancelBooking
 }

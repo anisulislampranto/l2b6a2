@@ -55,7 +55,34 @@ const getBookings = async (req: Request, res: Response) => {
     }
 }
 
+const cancelBooking = async (req: Request, res: Response) => {
+    const {bookingId} = req.params;
+
+    try {
+        const result = await bookingServices.cancelBooking(bookingId, req.user as JwtPayload)
+
+        if (!result) {
+            throw new Error("failed to cancel booking!");
+        }
+
+        if (result.rows.length) {
+            res.status(201).json({
+                success: true,
+                message: 'Booking cancelled!',
+            })
+        }
+
+
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 export const bookingControllers = {
     createBooking,
-    getBookings
+    getBookings,
+    cancelBooking
 }
