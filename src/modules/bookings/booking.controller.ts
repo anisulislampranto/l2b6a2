@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { bookingServices } from './booking.service';
 import { vehicleServices } from '../vehicles/vehicle.services';
+import { JwtPayload } from 'jsonwebtoken';
 
 const createBooking = async (req: Request, res: Response) => {
 
@@ -33,6 +34,28 @@ const createBooking = async (req: Request, res: Response) => {
     }
 }
 
+const getBookings = async (req: Request, res: Response) => {
+    try {
+        const result = await bookingServices.getBookings(req.user as JwtPayload)
+
+        if (result.rows.length) {
+            res.status(201).json({
+                success: true,
+                message: 'Bookings fetched!',
+                data: result.rows
+            })
+        }
+
+
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 export const bookingControllers = {
-    createBooking
+    createBooking,
+    getBookings
 }

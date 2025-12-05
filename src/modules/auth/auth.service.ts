@@ -46,7 +46,7 @@ const signup = async (payload: Record<string, unknown>) => {
 
     const user = result.rows?.[0];
 
-    const token = jwt.sign({ name: user?.name, email: user?.email, role: user?.role }, config.jwt_secret as string, { expiresIn: '7d' })
+    const token = jwt.sign({id: user.id, name: user?.name, email: user?.email, role: user?.role }, config.jwt_secret as string, { expiresIn: '7d' })
 
     return {
         token,
