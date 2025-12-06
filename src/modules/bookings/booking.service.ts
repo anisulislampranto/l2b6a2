@@ -45,7 +45,7 @@ const cancelBooking = async(bookingId: string | undefined, user: JwtPayload) => 
 
     if (user.role === 'admin') {
         const updatedBooking = await pool.query( `UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,  ["returned", bookingId]);
-        await pool.query( `UPDATE vehicles SET availability_status=$1 WHERE id=$1`, ["available", bookingData.vehicle_id]);
+        await pool.query( `UPDATE vehicles SET availability_status=$1 WHERE id=$2`, ["available", bookingData.vehicle_id]);
 
         return updatedBooking;
     } else if(user.role === 'customer') {
