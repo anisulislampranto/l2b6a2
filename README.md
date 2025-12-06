@@ -1,13 +1,13 @@
-##Car booking Service - `https://l2b6a2.vercel.app/`
+## Car booking Service - `https://l2b6a2.vercel.app/`
 
-##Technology Stack:
+## Technology Stack:
 Node.js + TypeScript
 Express.js (web framework)
 PostgreSQL (database)
 bcrypt (password hashing)
 jsonwebtoken (JWT authentication)
 
-##Features: 
+## Features: 
 Anyone can	Register new user account
 Anyone can	Login 
 
