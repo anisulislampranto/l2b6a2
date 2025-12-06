@@ -18,7 +18,7 @@ export const startBookingCleanupJob = () => {
 
                 await client.query( `UPDATE bookings SET status = 'returned' WHERE id = ANY($1::int[])`, [bookingIds]);
 
-                await client.query(`UPDATE vehicles SET availability_status = 'available' WHERE id = ANY($1::int[])`, [vehicleIds]);
+                await client.query(`UPDATE Vehicles SET availability_status = 'available' WHERE id = ANY($1::int[])`, [vehicleIds]);
 
             } catch (err) {
                 console.error("failed to do scheduled job", err);
