@@ -35,7 +35,7 @@ const getBookings = async(user: JwtPayload) => {
     return bookings;
 }
 
-const cancelBooking = async(bookingId: string | undefined, user: JwtPayload) => {
+const updateBooking = async(status: string, bookingId: string | undefined, user: JwtPayload) => {
     const booking = await pool.query(`SELECT * FROM bookings WHERE id=$1`, [bookingId])
     const bookingData = booking.rows[0]
 
@@ -44,11 +44,16 @@ const cancelBooking = async(bookingId: string | undefined, user: JwtPayload) => 
     }
 
     if (user.role === 'admin') {
-        const updatedBooking = await pool.query( `UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,  ["returned", bookingId]);
+        const updatedBooking = await pool.query( `UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,  [status, bookingId]);
         await pool.query( `UPDATE vehicles SET availability_status=$1 WHERE id=$2`, ["available", bookingData.vehicle_id]);
 
         return updatedBooking;
     } else if(user.role === 'customer') {
+
+        if (String(bookingData.customer_id) !== String(user.id)) {
+            throw Error('You can only update your own bookings!');
+        }
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -56,7 +61,7 @@ const cancelBooking = async(bookingId: string | undefined, user: JwtPayload) => 
         startDate.setHours(0, 0, 0, 0);
 
         if (startDate > today) {
-            const updatedBooking = await pool.query(`UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`, ["cancelled", bookingId]);
+            const updatedBooking = await pool.query(`UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`, [status, bookingId]);
             await pool.query(`UPDATE vehicles SET availability_status=$1 WHERE id=$2`, ["available", bookingData.vehicle_id]);
             return updatedBooking;
         }
@@ -69,5 +74,5 @@ const cancelBooking = async(bookingId: string | undefined, user: JwtPayload) => 
 export const bookingServices = {
     createBooking,
     getBookings,
-    cancelBooking
+    updateBooking
 }

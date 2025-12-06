@@ -55,11 +55,22 @@ const getBookings = async (req: Request, res: Response) => {
     }
 }
 
-const cancelBooking = async (req: Request, res: Response) => {
+const updateBooking = async (req: Request, res: Response) => {
     const {bookingId} = req.params;
+    const {status} = req.body;
+    const user = req.user as JwtPayload;
 
     try {
-        const result = await bookingServices.cancelBooking(bookingId, req.user as JwtPayload)
+
+        if (user.role === 'admin' && status !== 'returned') {
+            throw new Error("You are only allowed to change status to returned!");
+        }
+
+        if (user.role === 'customer' && status !== 'cancelled') {
+            throw new Error("You are only allowed to change status to cancelled!");
+        }
+
+        const result = await bookingServices.updateBooking(status, bookingId, user)
 
         if (!result) {
             throw new Error("failed to cancel booking!");
@@ -84,5 +95,5 @@ const cancelBooking = async (req: Request, res: Response) => {
 export const bookingControllers = {
     createBooking,
     getBookings,
-    cancelBooking
+    updateBooking
 }
