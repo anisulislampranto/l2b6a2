@@ -72,7 +72,7 @@ const deleteUser = async (req: Request, res: Response) => {
         } else {
             res.status(500).json({
                 success: false,
-                message: 'You are not allowed update this user!',
+                message: 'You are not allowed delete this user!',
             })
         }
 
