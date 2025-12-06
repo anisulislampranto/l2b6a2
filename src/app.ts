@@ -4,11 +4,15 @@ import { authRoutes } from './modules/auth/auth.routes';
 import { vehicleRoutes } from './modules/vehicles/vehicles.routes';
 import { userRoutes } from './modules/users/user.routes';
 import { bookingRoutes } from './modules/bookings/booking.route';
+import { startBookingCleanupJob } from './cronjobs/bookingCleanup';
 
 const app = express()
 
 // int db
 initDB()
+
+// cronjob 
+startBookingCleanupJob()
 
 // parser
 app.use(express.json())
