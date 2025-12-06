@@ -6,7 +6,7 @@ const getUsers = async (req: Request, res: Response) => {
     try {
         const result = await userServices.getUsers()
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: 'all user fetched',
             data: result.rows
@@ -28,13 +28,13 @@ const updateUser = async (req: Request, res: Response) => {
         if (String(role) === 'admin' || String(id) === String(userId)) {
             const result = await userServices.updateUser(userId, req.body)
 
-            res.status(201).json({
+            res.status(200).json({
                 success: true,
                 message: 'User Updated',
                 data: result.rows
             })
         } else {
-            res.status(500).json({
+            res.status(403).json({
                 success: false,
                 message: 'You are not allowed update this user!',
             })
@@ -58,7 +58,7 @@ const deleteUser = async (req: Request, res: Response) => {
             const result = await userServices.deleteUser(userId)
 
             if (!result) {
-                res.status(400).json({
+                res.status(403).json({
                     success: false,
                     message: 'Cannot Delete User with active booking!',
                 })

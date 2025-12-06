@@ -39,7 +39,7 @@ const getBookings = async (req: Request, res: Response) => {
         const result = await bookingServices.getBookings(req.user as JwtPayload)
 
         if (result.rows.length) {
-            res.status(201).json({
+            res.status(200).json({
                 success: true,
                 message: 'Bookings fetched!',
                 data: result.rows
@@ -77,7 +77,7 @@ const updateBooking = async (req: Request, res: Response) => {
         }
 
         if (result.rows.length) {
-            res.status(201).json({
+            res.status(200).json({
                 success: true,
                 message: 'Booking cancelled!',
             })
