@@ -14,7 +14,7 @@ const createBooking = async (payload: Record<string, unknown>, vehicleData: Reco
 
     const total_price = Number(daily_rent_price) * days;
 
-    const result = await pool.query(`INSERT INTO bookings(customer_id, vehicle_id, rent_start_date, rent_end_date, total_price, status) VALUES($1, $2, $3, $4, $5, $6) RETURNING *`, [customer_id, vehicle_id, rent_start_date, rent_end_date, total_price, status])
+    const result = await pool.query(`INSERT INTO Bookings(customer_id, vehicle_id, rent_start_date, rent_end_date, total_price, status) VALUES($1, $2, $3, $4, $5, $6) RETURNING *`, [customer_id, vehicle_id, rent_start_date, rent_end_date, total_price, status])
     
     await pool.query(`UPDATE Vehicles SET vehicle_name=$1, type=$2, registration_number=$3, daily_rent_price=$4, availability_status=$5 WHERE id=$6 RETURNING *`, [vehicle_name, type, registration_number, daily_rent_price, 'booked', id])
 
@@ -25,10 +25,10 @@ const getBookings = async(user: JwtPayload) => {
     let bookings;
 
     if (user.role === 'admin') {
-        const allBookings = await pool.query(`SELECT * FROM bookings`)
+        const allBookings = await pool.query(`SELECT * FROM Bookings`)
         bookings = allBookings;
     } else {
-        const userBookings = await pool.query(`SELECT * FROM bookings WHERE customer_id=$1`, [user.id])
+        const userBookings = await pool.query(`SELECT * FROM Bookings WHERE customer_id=$1`, [user.id])
         bookings = userBookings;
     }
 
@@ -36,7 +36,7 @@ const getBookings = async(user: JwtPayload) => {
 }
 
 const updateBooking = async(status: string, bookingId: string | undefined, user: JwtPayload) => {
-    const booking = await pool.query(`SELECT * FROM bookings WHERE id=$1`, [bookingId])
+    const booking = await pool.query(`SELECT * FROM Bookings WHERE id=$1`, [bookingId])
     const bookingData = booking.rows[0]
 
     if (!bookingData) {
@@ -44,14 +44,14 @@ const updateBooking = async(status: string, bookingId: string | undefined, user:
     }
 
     if (user.role === 'admin') {
-        const updatedBooking = await pool.query( `UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,  [status, bookingId]);
+        const updatedBooking = await pool.query( `UPDATE Bookings SET status=$1 WHERE id=$2 RETURNING *`,  [status, bookingId]);
         await pool.query( `UPDATE Vehicles SET availability_status=$1 WHERE id=$2`, ["available", bookingData.vehicle_id]);
 
         return updatedBooking;
     } else if(user.role === 'customer') {
 
         if (String(bookingData.customer_id) !== String(user.id)) {
-            throw Error('You can only update your own bookings!');
+            throw Error('You can only update your own Bookings!');
         }
 
         const today = new Date();
@@ -61,7 +61,7 @@ const updateBooking = async(status: string, bookingId: string | undefined, user:
         startDate.setHours(0, 0, 0, 0);
 
         if (startDate > today) {
-            const updatedBooking = await pool.query(`UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`, [status, bookingId]);
+            const updatedBooking = await pool.query(`UPDATE Bookings SET status=$1 WHERE id=$2 RETURNING *`, [status, bookingId]);
             await pool.query(`UPDATE Vehicles SET availability_status=$1 WHERE id=$2`, ["available", bookingData.vehicle_id]);
             return updatedBooking;
         }
