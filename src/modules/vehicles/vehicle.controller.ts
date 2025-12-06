@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { vehicleServices } from "./vehicle.services";
+import { JwtPayload } from "jsonwebtoken";
 
 const addVehicle = async (req: Request, res: Response) => {
 
@@ -78,9 +79,47 @@ const updateVehicle = async (req: Request, res: Response) => {
     }
 }
 
+const deleteVehicle = async (req: Request, res: Response) => {
+    const { vehicleId } = req.params;
+    const { role } = req.user as JwtPayload;
+    try {
+
+        if (String(role) === 'admin') {
+            const result = await vehicleServices.deleteVehicle(vehicleId)
+
+            if (!result) {
+                res.status(201).json({
+                    success: false,
+                    message: 'Vehicle has active booking',
+                })
+            }
+
+            res.status(201).json({
+                success: true,
+                message: 'Vehicle Deleted',
+                data: result?.rows
+            })
+
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'You are not allowed update this user!',
+            })
+        }
+
+
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 export const vehicleControllers = {
     addVehicle,
     getVehicles,
     getVehicle,
-    updateVehicle
+    updateVehicle,
+    deleteVehicle
 }

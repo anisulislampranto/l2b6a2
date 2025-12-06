@@ -49,7 +49,43 @@ const updateUser = async (req: Request, res: Response) => {
     }
 }
 
+const deleteUser = async (req: Request, res: Response) => {
+    const {userId} = req.params;
+    const {role} = req.user as JwtPayload;
+    try {
+
+        if (String(role) === 'admin') {
+            const result = await userServices.deleteUser(userId)
+
+            if (!result) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Cannot Delete User with active booking!',
+                })
+            }
+
+            res.status(200).json({
+                success: true,
+                message: 'User deleted',
+                data: result?.rows
+            })
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'You are not allowed update this user!',
+            })
+        }
+
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 export const userControllers = {
     getUsers,
-    updateUser
+    updateUser,
+    deleteUser
 }
