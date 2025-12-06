@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import config from '../../config';
 
 const signin = async (email: string, password: string) => {
-    const result = await pool.query(`SELECT * FROM users WHERE email=$1`, [email])
+    const result = await pool.query(`SELECT * FROM Users WHERE email=$1`, [email])
 
     console.log('user', result);
 
@@ -33,7 +33,7 @@ const signup = async (payload: Record<string, unknown>) => {
     let userRole;
     const hashedPass = await bcrypt.hash(password as string, 10);
     
-    const users  = await pool.query(`SELECT * FROM users`);
+    const users  = await pool.query(`SELECT * FROM Users`);
 
     if (users?.rows?.length === 0) {
         userRole = 'admin'
@@ -41,7 +41,7 @@ const signup = async (payload: Record<string, unknown>) => {
         userRole = 'customer'
     }
 
-    const result = await pool.query(`INSERT INTO users(name, role, email, password, phone) VALUES($1, $2, $3, $4, $5) RETURNING *`, [name, userRole, email, hashedPass, phone])
+    const result = await pool.query(`INSERT INTO Users(name, role, email, password, phone) VALUES($1, $2, $3, $4, $5) RETURNING *`, [name, userRole, email, hashedPass, phone])
     
 
     const user = result.rows?.[0];
