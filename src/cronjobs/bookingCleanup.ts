@@ -16,8 +16,6 @@ export const startBookingCleanupJob = () => {
                 const bookingIds = expired.rows.map((b: any) => b.id);
                 const vehicleIds = [...new Set(expired.rows.map((b: any) => b.vehicle_id))];
 
-                await client.query("BEGIN");
-
                 await client.query( `UPDATE bookings SET status = 'returned' WHERE id = ANY($1::int[])`, [bookingIds]);
 
                 await client.query(`UPDATE vehicles SET availability_status = 'available' WHERE id = ANY($1::int[])`, [vehicleIds]);
